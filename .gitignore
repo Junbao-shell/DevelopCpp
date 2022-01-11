@@ -1,0 +1,5 @@
+# .gitignore
+
+/globalStorage
+/snippets
+/workspaceStorage
