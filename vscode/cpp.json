@@ -1,0 +1,62 @@
+{
+	"Print to console": 
+    {
+		"prefix": "nvcpp",
+		"body": [
+            "///////////////////////////////////////////////////////////",
+            "/// @copyright copyright description",
+            "/// ",
+            "/// @brief $1",
+            "/// ",
+            "/// @file $TM_FILENAME",
+            "/// ",
+            "/// @author ${3:author}",
+            "/// ",
+            "/// @date $CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE",
+            "///////////////////////////////////////////////////////////",
+            "",
+			"// Current Cpp header",
+            "// System header",
+            "// C/C++ standard library header",
+            "// External library header",
+            "// Current module header",
+            "// Root directory header",
+            "",
+            "$4",
+            ""
+		],
+		"description": "nv cpp file template"
+	},
+    "hFileTemplate":
+    {
+        "prefix": "nvh",
+        "body": [
+            "///////////////////////////////////////////////////////////",
+            "/// @copyright copyright description",
+            "/// ",
+            "/// @brief $1",
+            "/// ",
+            "/// @file $TM_FILENAME",
+            "/// ",
+            "/// @author ${3:author}",
+            "/// ",
+            "/// @date $CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE",
+            "///////////////////////////////////////////////////////////",
+            "",
+            "#ifndef __${WORKSPACE_NAME/(.*)/${1:/upcase}/}_${TM_FILENAME_BASE/(.*)/${1:/upcase}/}_H_",
+            "#define __${WORKSPACE_NAME/(.*)/${1:/upcase}/}_${TM_FILENAME_BASE/(.*)/${1:/upcase}/}_H_",
+            "",
+            "// System header",
+            "// C/C++ standard library header",
+            "// External library header",
+            "// Current module header",
+            "// Root directory header",
+            "",
+            "$0",
+            "",
+            "#endif // __${WORKSPACE_NAME/(.*)/${1:/upcase}/}_${TM_FILENAME_BASE/(.*)/${1:/upcase}/}_H_",
+            ""
+        ],
+        "description": "nv cpp header file template"
+    }
+}
