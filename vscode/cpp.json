@@ -16,6 +16,7 @@
             "///////////////////////////////////////////////////////////",
             "",
 			"// Current Cpp header",
+            "#include \"$TM_FILENAME_BASE.h\"",
             "// System header",
             "// C/C++ standard library header",
             "// External library header",
@@ -58,5 +59,40 @@
             ""
         ],
         "description": "nv cpp header file template"
+    },
+    "cppClassTemplate":
+    {
+        "prefix": "nvClass",
+        "body": [
+            "class $1",
+            "{",
+            "public:",
+            "    $1();",
+            "    $1(const $1 &) = delete;",
+            "    $1 &operator=(const $1 &) = delete;",
+            "    ~$1();",
+            "",
+            "$0",
+            "",
+            "protected:",
+            "private:",
+            "",
+            "public:",
+            "protected:",
+            "private:",
+            "};"
+        ],
+        "description": "nv cpp for class file template"
+    },
+    "cppForLoopTemplate":
+    {
+        "prefix": "nvfor",
+        "body": [
+            "for (int $1 = 0; $1 < $2; ++$1)",
+            "{ ",
+            "    $0",
+            "}"
+        ],
+        "description": "nv cpp for loop template"
     }
 }

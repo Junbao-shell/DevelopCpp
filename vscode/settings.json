@@ -1,4 +1,6 @@
 {   
+    "editor.fontSize": 14,
+    "editor.fontFamily": "Consolas, '楷体', monospace",
     "editor.wordWrap": "wordWrapColumn",
     "editor.wordWrapColumn": 120,
     "editor.rulers": [120],
@@ -6,9 +8,11 @@
     "editor.defaultFormatter": "austin.code-gnu-global",
     "editor.renderWhitespace": "all",
     "editor.detectIndentation": false,
-    
+    "editor.minimap.enabled": false,
+
     "files.encoding": "utf8",
     "files.autoGuessEncoding": false,
+    "files.associations": {"*.cu": "cpp", "*.cuh": "cpp"},
 
     "explorer.confirmDragAndDrop": false,
     "workbench.startupEditor": "none",
@@ -17,7 +21,11 @@
 
     "C_Cpp.default.cppStandard": "c++17",
     "C_Cpp.formatting": "clangFormat",
+    "C_Cpp.autoAddFileAssociations": true,
     "C_Cpp.vcFormat.newLine.beforeOpenBrace.namespace": "newLine",
+    "C_Cpp.vcFormat.space.beforeEmptySquareBrackets": false,
+    "C_Cpp.vcFormat.space.beforeOpenSquareBracket": false,
+    "C_Cpp.vcFormat.space.beforeBlockOpenBrace": true,
     "C_Cpp.vcFormat.space.beforeLambdaOpenParenthesis": true,
     "C_Cpp.vcFormat.space.betweenEmptyBraces": true,   
     "[cpp]": {
@@ -29,5 +37,6 @@
         "192.168.20.35": "linux"
     },
 
-    "cmake.configureOnOpen": true
+    "cmake.configureOnOpen": true,
+    "update.mode": "none"
 }

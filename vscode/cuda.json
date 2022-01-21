@@ -1,0 +1,65 @@
+{
+	"CppFileTemlate": 
+    {
+		"prefix": "nvcuda",
+		"body": [
+            "///////////////////////////////////////////////////////////",
+            "/// @copyright copyright description",
+            "/// ",
+            "/// @brief $1",
+            "/// ",
+            "/// @file $TM_FILENAME",
+            "/// ",
+            "/// @author ${3:author}",
+            "/// ",
+            "/// @date $CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE",
+            "///////////////////////////////////////////////////////////",
+            "",
+			"// Current Cpp header",
+            "// System header",
+            "// C/C++ standard library header",
+            "// External library header",
+            "// Current module header",
+            "// Root directory header",
+            "",
+            "$4",
+            ""
+		],
+		"description": "nv cpp file template"
+	},
+    "cudaMallocTemplate":
+    {
+        "prefix": "cudaMalloc",
+        "body": [
+            "cudaMalloc((void**)&${1:d_data}, sizeof(${2:float}) * ${3:size});"
+        ],
+        "description": "nv cuda malloc template"
+    },
+    "cudaMemcpyTemplate":
+    {
+        "prefix": "cudaMemcpy",
+        "body": [
+            "cudaMemcpy(${1:d_data}, ${2:h_data}, sizeof(${3:float}) * ${4:size}, ${5:cudaMemcpyHostToDevice});"
+        ],
+        "description": "nv cuda memory copy template"
+    },
+    "cudaGlobalTemplate":
+    {
+        "prefix": "__global__2D",
+        "body": [
+            "__global__ void $1(const int ${2:nx}, const int ${3:ny})",
+            "{",
+            "    const int idx = blockDim.x * blockIdx.x + threadIdx.x;",
+            "    const int idy = blockDim.y * blockIdx.y + threadIdx.y;",
+            "",
+            "    if (idx < $2 && idy < $3)",
+            "    { ",
+            "        $0",
+            "    }",
+            "}"
+        ],
+        "description": "nv cuda global kernel template"
+    }
+
+
+}
