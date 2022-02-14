@@ -1,11 +1,11 @@
 ///////////////////////////////////////////////////////////
 /// @copyright copyright description
 ///
-/// @brief add function for shared library
+/// @brief UT add library
 ///
-/// @file add.cpp
+/// @file main.cpp
 ///
-/// @author Jonathan
+/// @author author
 ///
 /// @date 2022-02-13
 ///////////////////////////////////////////////////////////
@@ -14,11 +14,19 @@
 #include "add.h"
 // System header
 // C/C++ standard library header
+#include <memory>
 // External library header
+// #include <glog/>
 // Current module header
 // Root directory header
 
-int Add::add(int a, int b)
+int main(int argc, char **argv)
 {
-    return a + b;
+    auto t = std::make_shared<Add>();
+
+    auto a = 1;
+    auto b = 2;
+    t->add(a, b);
+
+    return 0;
 }
