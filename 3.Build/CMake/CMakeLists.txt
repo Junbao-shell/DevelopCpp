@@ -1,5 +1,5 @@
 # CMakeList.txt
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.5)
 project(UT_Shared)
 
 set(CMAKE_C_COMPILER "D:/Software/MinGW/bin/gcc.exe")
