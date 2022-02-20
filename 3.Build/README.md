@@ -1,21 +1,30 @@
 [TOC]
 
-# OS
-本文档主要介绍 `Linux` 操作系统下工程构建，编译规则
-针对不同操作系统的构建差异，只会相应目录下列出差异点
+# Introduce
+本文档总体介绍在软件开发过程中，**`BUILD`** 步骤的主要内容，主要介绍 build使用的工具 CMAKE：
+CMake 是一个构建系统**生成器**（是一个生成器，不是构建工具），**可以独立于操作系统和编译器**，构建的target应该满足在GNU/Linux, macOS, Windows 操作系统上运行。
 
-## Linux
-目前使用的语言重要是 `C++` ，主要使用 cmake 作为构建工具
+首先需要确定几个基本概念
++ 构建过程
++ 编译过程
 
-### CMake 
+几个工具
++ 编译器
++ 自动化构建工具
++ 
 
-### Makefile
+# Content:
++ CMake
++ Makefile
++ ninja
 
-### 
 
+## CMake
+主要介绍 CMake的基本语法，总结出一个基本服务端程序使用的CMakeLists.txt的基本模板
 
-# Compiler
+## Makefile
 
-# 
+## Ninja
 
+Ninja 是一个**自动化构建工具**, Ninja 注重速度，特别是增量重构。适用于 Llinux, macOS, Windows
 
