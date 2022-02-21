@@ -10,8 +10,8 @@
 /// @date 2022-02-13
 ///////////////////////////////////////////////////////////
 
-#ifndef __SOFTWARE - CONFIG_ADD_H_
-#define __SOFTWARE -CONFIG_ADD_H_
+#ifndef __SOFTWARE_CONFIG_ADD_H_
+#define __SOFTWARE_CONFIG_ADD_H_
 
 // System header
 // C/C++ standard library header
@@ -25,7 +25,7 @@ public:
     Add() {}
     Add(const Add &) = delete;
     Add &operator=(const Add &) = delete;
-    ~Add();
+    ~Add() {}
 
     int add(int a, int b);
 

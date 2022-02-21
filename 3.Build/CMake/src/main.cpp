@@ -14,6 +14,7 @@
 #include "add.h"
 // System header
 // C/C++ standard library header
+#include <iostream>
 #include <memory>
 // External library header
 // #include <glog/>
@@ -26,7 +27,7 @@ int main(int argc, char **argv)
 
     auto a = 1;
     auto b = 2;
-    t->add(a, b);
+    std::cout << "a + b = " << t->add(a, b) << std::endl;
 
     return 0;
 }
