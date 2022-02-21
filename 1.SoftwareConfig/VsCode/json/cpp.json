@@ -19,7 +19,9 @@
             "#include \"$TM_FILENAME_BASE.h\"",
             "// System header",
             "// C/C++ standard library header",
+            "#include <iostream>",
             "// External library header",
+            "#include <glog/logging.h>",
             "// Current module header",
             "// Root directory header",
             "",
@@ -49,6 +51,7 @@
             "",
             "// System header",
             "// C/C++ standard library header",
+            "#include <iostream>",
             "// External library header",
             "// Current module header",
             "// Root directory header",
@@ -59,6 +62,28 @@
             ""
         ],
         "description": "nv cpp header file template"
+    },
+    "mainFunctionTemplate":
+    {
+        "prefix": "nvmain",
+        "body": [
+            "int main(int argc, char **argv)",
+            "{",
+            "    FLAGS_v = 4;",
+            "    FLAGS_log_dir = \"./log\";",
+            "    FLAGS_alsologtostderr = true;",
+            "    FLAGS_colorlogtostderr = true;",
+            "    google::InitGoogleLogging(argv[0]);",
+            "",
+            "    $0",
+            "",
+            "    google::ShutdownGoogleLogging();",
+            "",
+            "    return 0;",
+            "}",
+            ""
+        ],
+        "description": "nv main function template"
     },
     "cppClassTemplate":
     {
