@@ -2,10 +2,11 @@
 
 ## VIM
 
-#### 激活使用方向键
+#### 激活方向键，删除键等
 ```shell
 # 方法1
 echo "set nocompatible" >> ~/.vimrc
+echo "set backspace=2" >> ~/.vimrc
 # 方法2
 sudo vi ~/.vimrc
 ```
@@ -36,6 +37,10 @@ sudo add-apt-repository ppa:git-core/ppa    # 向 PPA 中添加 git 的软件源
 sudo apt-get update
 sudo apt-get install git
 ```
+
+### 卸载软件
+sudo apt remove 
+sudo apt remove --purge 
 
 ## ssh
 使用 ssh 远程连接服务器，使用一段时间后，远程主机的ssh-key秘钥发生变化，如重新安装系统了等，但是IP地址没有变
