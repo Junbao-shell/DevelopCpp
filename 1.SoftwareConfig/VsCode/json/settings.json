@@ -4,8 +4,14 @@
     "editor.wordWrap": "wordWrapColumn",
     "editor.wordWrapColumn": 120,
     "editor.rulers": [120],
-    "editor.formatOnType": true,
+
+    // format
+    "editor.formatOnSave": false,
+    "editor.formatOnPaste": false,
+    "editor.formatOnType": false,
     "editor.defaultFormatter": "austin.code-gnu-global",
+    
+
     "editor.renderWhitespace": "all",
     "editor.detectIndentation": false,
     "editor.minimap.enabled": false,
@@ -19,10 +25,13 @@
     "workbench.iconTheme": "vscode-icons",
     "bracketPairColorizer.depreciation-notice": false,
 
+    // CPP
     "C_Cpp.default.cppStandard": "c++17",
     "C_Cpp.formatting": "clangFormat",
-    "C_Cpp.autoAddFileAssociations": true,
     "C_Cpp.vcFormat.newLine.beforeOpenBrace.namespace": "newLine",
+
+    // space
+    "C_Cpp.autoAddFileAssociations": true,
     "C_Cpp.vcFormat.space.beforeEmptySquareBrackets": false,
     "C_Cpp.vcFormat.space.beforeOpenSquareBracket": false,
     "C_Cpp.vcFormat.space.beforeBlockOpenBrace": true,
@@ -32,11 +41,20 @@
         "editor.defaultFormatter": "ms-vscode.cpptools"
     },
 
+    // xml & html
+    "[xml]": {
+        "editor.wordWrap": "off"
+    },
+
+
+
     "remote.SSH.remotePlatform": {
         "153": "linux",
-        "192.168.20.35": "linux"
+        "192.168.20.35": "linux",
+        "192.168.20.114": "linux"
     },
 
     "cmake.configureOnOpen": true,
-    "update.mode": "none"
+    "update.mode": "none",
+    "vsicons.dontShowNewVersionMessage": true
 }

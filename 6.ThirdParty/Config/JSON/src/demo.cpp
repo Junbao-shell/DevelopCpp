@@ -1,21 +1,21 @@
 ///////////////////////////////////////////////////////////
 /// @copyright copyright description
-/// 
-/// @brief test glog demo
-/// 
-/// @file main.cpp
-/// 
+///
+/// @brief test json config module, the first json demo
+///
+/// @file demo.cpp
+///
 /// @author Jonathan
-/// 
+///
 /// @date 2022-02-21
 ///////////////////////////////////////////////////////////
 
 // Current Cpp header
 // System header
 // C/C++ standard library header
-#include <iostream>
 // External library header
-#include "glog/logging.h"
+#include "json.hpp"
+#include <glog/logging.h>
 // Current module header
 // Root directory header
 
@@ -26,11 +26,8 @@ int main(int argc, char **argv)
     FLAGS_alsologtostderr = true;
     FLAGS_colorlogtostderr = true;
     google::InitGoogleLogging(argv[0]);
+
     
-    VLOG(0) << " i am 0";
-    VLOG(1) << " i am 1";
-    VLOG(2) << " i am 2";
-    VLOG(3) << " i am 3";
 
     google::ShutdownGoogleLogging();
 
