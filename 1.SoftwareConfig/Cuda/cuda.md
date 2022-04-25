@@ -4,7 +4,8 @@
 如果没有安装 nvidia-driver, 可以直接安装 cuda-toolkit, 安装过程中会自动安装相应的驱动，不需要单独安装
 但是如果之前已经安装驱动，则不能直接安装新的驱动以及 cuda-toolkit, 需要将原有的驱动卸载干净，再重新安装
 
-** 需要禁用 nouveau **
+**需要禁用 nouveau**
+
 ```shell
 # 通过以下命令查看是否禁用 nouveau, 一般情况下是禁用的状态
 lsmod | grep nouveau
@@ -21,8 +22,9 @@ sudo update-initramfs -u
 sudo reboot
 ```
 
-** cuda和驱动的安装需要卸载 实现图像界面 **
+**cuda和驱动的安装需要卸载 实现图像界面**
 不同操作系统的卸载方式存在一定的差别：（欢迎补充）
+
 ```shell
 # Ubuntu 16.04
 # 禁用图形界面
@@ -59,6 +61,8 @@ sudo ./cuda_11.6.1_510.47.03_linux.run
 ## cuda 的卸载
 ```shell
 # 使用官方卸载软件卸载
+cd /usr/bin/
+sudo ./nvidia-uninstall
 cd /usr/local/cuda/bin/
 sudo ./cuda-uninstaller
 # 卸载残留
