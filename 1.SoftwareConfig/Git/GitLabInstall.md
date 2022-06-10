@@ -78,7 +78,37 @@ systemctl enable gitlab-runsvdir.service
 
 ## Windows
 
+在Windows中可以使用 Git和TortoiseGit工具使用Git, 也可以使用GitBash进行管理。(如果对命令行不熟悉优先推荐使用TortoiseGit)
 
+### 安装TortoiseGit
+
+
+
+### 配置
+
+
+
+### 使用PuttyKey配置远程管理秘钥
+
+在将本地的仓库推送到远程，或从远程更新时，会提示输入配置的密码。
+
+可以在本地代码生成ssh-key 秘钥，在远程仓库添加。然后基于Putty配置秘钥，添加到TortoiseGit中，避免每次输入密码。
+
+![tortoise_git_config](../../.picture/1.SoftwareConfig/git_tortoisegit_key_config.png)
+
+
+
+1. 使用Putty 加载秘钥文件
+
+   ![tortoise_git_config](../../.picture/1.SoftwareConfig/git_tortoisegit_putty_key.png)
+
+
+
+2. 加载秘钥文件并生成putty key 文件
+
+![tortoise_git_config](../../.picture/1.SoftwareConfig/git_tortoisegit_putty_key_config.png)
+
+![tortoise_git_config](../../.picture/1.SoftwareConfig/git_tortoisegit_remote_config.png)
 
 
 
