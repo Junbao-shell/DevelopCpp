@@ -126,7 +126,6 @@ void Conv2DFFT(float *ina, float *inb, float *out, const int dimx, const int dim
     ForwardFFT2D(inb, c_inb, dimx, dimy);
     cudaDeviceSynchronize();
 
-
     Complex *h_ina, *h_inb, *h_out;
     cudaMallocHost((void**)&h_ina, sizeof(Complex) * size);
     cudaMallocHost((void**)&h_inb, sizeof(Complex) * size);
@@ -195,39 +194,50 @@ void cuFFTDemo2D()
 {
     const int dimx = 4;
     const int dimy = 2;
+    const int new_dimx = 2 * dimx - 1;
+    const int new_dimy = 2 * dimy - 1;
     const int size = dimx * dimy;
+    const int new_size = new_dimx * new_dimy;
 
     float *h_signal, *h_kernel, *h_result;
-    cudaMallocHost((void**)&h_signal, sizeof(float) * size);
-    cudaMallocHost((void**)&h_kernel, sizeof(float) * size);
-    cudaMallocHost((void**)&h_result, sizeof(float) * size);
+    cudaMallocHost((void**)&h_signal, sizeof(float) * new_size); memset(h_signal, 0, sizeof(float) * new_size);
+    cudaMallocHost((void**)&h_kernel, sizeof(float) * new_size); memset(h_kernel, 0, sizeof(float) * new_size);
+    cudaMallocHost((void**)&h_result, sizeof(float) * new_size); memset(h_result, 0, sizeof(float) * new_size);
     
-    for (int i = 0; i < size; ++i)
+    for (int i = 0; i < new_dimx; ++i)
     {
-        h_signal[i] = 1 + i;
-        h_kernel[i] = 1 + i;
+        for (int j = 0; j < new_dimy; ++j)
+        {
+            if (i < dimx && j < dimy)
+            {
+                const int index = j * new_dimx+ i;
+                h_signal[index] = 1 + i;
+                h_kernel[index] = 1 + i;
+            }
+        }
     }
 
-    memset(h_result, 0, sizeof(float) * size);
-    std::cout << "signal initialize: " << PrintArray(h_signal, size) << std::endl;
-    std::cout << "kernel initialize: " << PrintArray(h_kernel, size) << std::endl;
+    std::cout << "signal initialize: " << PrintArray(h_signal, new_size) << std::endl;
+    std::cout << "kernel initialize: " << PrintArray(h_kernel, new_size) << std::endl;
 
     // device memory
     float *d_signal, *d_kernel, *d_result;
-    cudaMalloc((void**)&d_signal, sizeof(float) * size);
-    cudaMalloc((void**)&d_kernel, sizeof(float) * size);
-    cudaMalloc((void**)&d_result, sizeof(float) * size);
+    cudaMalloc((void**)&d_signal, sizeof(float) * new_size); cudaMemset(d_signal, 0, sizeof(float) * new_size);
+    cudaMalloc((void**)&d_kernel, sizeof(float) * new_size); cudaMemset(d_kernel, 0, sizeof(float) * new_size);
+    cudaMalloc((void**)&d_result, sizeof(float) * new_size); cudaMemset(d_result, 0, sizeof(float) * new_size);
     
-    cudaMemcpy(d_signal, h_signal, sizeof(float) * size, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_kernel, h_kernel, sizeof(float) * size, cudaMemcpyHostToDevice);
-    cudaMemset(d_result, 0, sizeof(float) * size);
+    cudaMemcpy(d_signal, h_signal, sizeof(float) * new_size, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_kernel, h_kernel, sizeof(float) * new_size, cudaMemcpyHostToDevice);
 
     // cufft
-    Conv2DFFT(d_signal, d_kernel, d_result, dimx, dimy);
-    cudaMemcpy(h_result, d_result, sizeof(float) * size, cudaMemcpyDeviceToHost);
+    Conv2DFFT(d_signal, d_kernel, d_result, new_dimx, new_dimy);
+    cudaMemcpy(h_result, d_result, sizeof(float) * new_size, cudaMemcpyDeviceToHost);
 
-    std::cout << "conv result: " << PrintArray(h_result, dimx) << std::endl;
-    std::cout << "conv result: " << PrintArray(h_result + dimx, dimx) << std::endl;
+    for (int i = 0; i < new_dimy; ++i)
+    {
+        const int offset = i * new_dimx;
+        std::cout << "conv result: " << PrintArray(h_result + offset, new_dimx) << std::endl;
+    }
 
     // free memory
     cudaFree(d_signal);
@@ -247,12 +257,13 @@ void cuFFTDemo2D()
 void cuFFTDemo1D()
 {
     const int size = 4;
+    const int new_size = 2 * size - 1;
     // const int kernel_size = 11;
 
     float *h_signal, *h_kernel, *h_result;
-    cudaMallocHost((void**)&h_signal, sizeof(float) * size);
-    cudaMallocHost((void**)&h_kernel, sizeof(float) * size);
-    cudaMallocHost((void**)&h_result, sizeof(float) * size);
+    cudaMallocHost((void**)&h_signal, sizeof(float) * new_size); memset(h_signal, 0, sizeof(float) * new_size);
+    cudaMallocHost((void**)&h_kernel, sizeof(float) * new_size); memset(h_kernel, 0, sizeof(float) * new_size);
+    cudaMallocHost((void**)&h_result, sizeof(float) * new_size); memset(h_result, 0, sizeof(float) * new_size);
     
     for (int i = 0; i < size; ++i)
     {
@@ -260,25 +271,26 @@ void cuFFTDemo1D()
         h_kernel[i] = 5 + i;
     }
 
-    memset(h_result, 0, sizeof(float) * size);
     std::cout << "signal initialize: " << PrintArray(h_signal, size) << std::endl;
     std::cout << "kernel initialize: " << PrintArray(h_kernel, size) << std::endl;
 
     // device memory
     float *d_signal, *d_kernel, *d_result;
-    cudaMalloc((void**)&d_signal, sizeof(float) * size);
-    cudaMalloc((void**)&d_kernel, sizeof(float) * size);
-    cudaMalloc((void**)&d_result, sizeof(float) * size);
+    cudaMalloc((void**)&d_signal, sizeof(float) * new_size); 
+    cudaMemset(d_signal, 0, sizeof(float) * new_size);
+    cudaMalloc((void**)&d_kernel, sizeof(float) * new_size);
+    cudaMemset(d_kernel, 0, sizeof(float) * new_size);
+    cudaMalloc((void**)&d_result, sizeof(float) * new_size);
+    cudaMemset(d_result, 0, sizeof(float) * new_size);
     
     cudaMemcpy(d_signal, h_signal, sizeof(float) * size, cudaMemcpyHostToDevice);
     cudaMemcpy(d_kernel, h_kernel, sizeof(float) * size, cudaMemcpyHostToDevice);
-    cudaMemset(d_result, 0, sizeof(float) * size);
 
     // cufft
-    Conv1DFFT(d_signal, d_kernel, d_result, size);
-    cudaMemcpy(h_result, d_result, sizeof(float) * size, cudaMemcpyDeviceToHost);
+    Conv1DFFT(d_signal, d_kernel, d_result, new_size);
+    cudaMemcpy(h_result, d_result, sizeof(float) * new_size, cudaMemcpyDeviceToHost);
 
-    std::cout << "conv result: " << PrintArray(h_result, size) << std::endl;
+    std::cout << "conv result: " << PrintArray(h_result, new_size) << std::endl;
 
     // free memory
     cudaFree(d_signal);
