@@ -17,6 +17,7 @@
 #include <sstream>
 // External library header
 #include <cuda_runtime.h>
+#include <device_launch_parameters.h>
 #include <helper_cuda.h>
 #include <cufft.h>
 #include <thrust/device_vector.h>
@@ -28,16 +29,6 @@
 
 typedef float2 Complex;
 
-// static __device__ __host__ inline Complex ComplexAdd(Complex, Complex);
-// static __device__ __host__ inline Complex ComplexScale(Complex, float);
-// static __device__ __host__ inline Complex ComplexMul(Complex a, Complex b)
-// {
-//     Complex c;
-//     c.x = a.x * b.x - a.y + b.y;
-//     c.y = a.x * b.y + a.y * b.x;
-//     return c;
-// }
-
 struct ComplexMultiply
 {
     ComplexMultiply(int n) : N(n) {}
@@ -45,13 +36,38 @@ struct ComplexMultiply
     __host__ __device__ Complex operator() (const Complex &a, const Complex &b)
     {
         Complex c;
-        c.x = (a.x * b.x - a.y + b.y);
-        c.y = (a.x * b.y + a.y * b.x);
+        c.x = (a.x * b.x - a.y * b.y) / N;
+        c.y = (a.x * b.y + a.y * b.x) / N;
         return c;
     }
 
     int N;
 };
+
+static __global__ void ComplexMulti(const Complex *a, const Complex *b, Complex *c, const int size)
+{
+    const int tid = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (tid < size)
+    {
+        c[tid].x = (a[tid].x * b[tid].x - a[tid].y * b[tid].y) / size;
+        c[tid].y = (a[tid].x * b[tid].y + a[tid].y * b[tid].x) / size;
+    }
+}
+
+static __global__ void ComplexMulti2D(const Complex *a, const Complex *b, Complex *c, const int dimx, const int dimy)
+{
+    const int tidx = blockIdx.x * blockDim.x + threadIdx.x;
+    const int tidy = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if (tidx < dimx && tidy < dimy)
+    {
+        const int i = tidy * dimx + tidx;
+
+        c[i].x = (a[i].x * b[i].x - a[i].y * b[i].y) / (dimx * dimy);
+        c[i].y = (a[i].x * b[i].y + a[i].y * b[i].x) / (dimx * dimy);
+    }
+}
 
 template<typename T>
 static inline std::string PrintArray(T *arr, const int size)
@@ -66,49 +82,7 @@ static inline std::string PrintArray(T *arr, const int size)
     return stream.str();
 }
 
-// static inline std::string PrintArray(Complex *arr, const int size)
-// {
-//     std::stringstream stream;
-//     for (int i = 0; i < (size - 1); ++i)
-//     {
-//         stream << "(" << arr[i].x << ", " << arr[i].y << ")";
-//         stream << ' ';
-//     }
-//     stream << "(" << arr[size - 1].x << ", " << arr[size - 1].y << ")";
-//     return stream.str();
-// }
-
-template<typename T>
-void InitArray(const int size, T *arr)
-{
-    for (int i = 0; i < size; ++i)
-    {
-        arr[i] = i + 1;
-    }
-}
-
-void InitArray(const int size, Complex *arr)
-{
-    for (int i = 0; i < size; ++i)
-    {
-        arr[i].x = i + 1;
-        arr[i].y = 0;
-    }
-}
-
-void InitArray(const int dimx, const int dimy, int *arr)
-{
-    for (int i = 0; i < dimy; ++i)
-    {
-        for (int j = 0; j < dimx; ++j)
-        {
-            const int index = i * dimx + j;
-            arr[index] = i * 10 + j + 1;
-        }
-    }
-}
-
-void ForwardFFT(float *in, Complex *out, const int size)
+void ForwardFFT1D(float *in, Complex *out, const int size)
 {
     cufftHandle plan;
     cufftPlan1d(&plan, size, CUFFT_R2C, 1);
@@ -116,7 +90,7 @@ void ForwardFFT(float *in, Complex *out, const int size)
     cufftDestroy(plan);
 }
 
-void InverseFFT(Complex *in, float *out, const int size)
+void InverseFFT1D(Complex *in, float *out, const int size)
 {
     cufftHandle plan;
     cufftPlan1d(&plan, size, CUFFT_C2R, 1);
@@ -124,51 +98,104 @@ void InverseFFT(Complex *in, float *out, const int size)
     cufftDestroy(plan);
 }
 
-void ConvFFT(float *ina, float *inb, float *out, const int size)
+void ForwardFFT2D(float *in, Complex *out, const int dimx, const int dimy)
 {
-    thrust::device_vector<Complex> d_ina(size);
-    thrust::device_vector<Complex> d_inb(size);
-    thrust::device_vector<Complex> d_out(size);
-
-    Complex *raw_ina_fft = thrust::raw_pointer_cast(&d_ina[0]);
-    Complex *raw_inb_fft = thrust::raw_pointer_cast(&d_inb[0]);
-    Complex *raw_out_fft = thrust::raw_pointer_cast(&d_out[0]);
-
-    std::cout << "arr a: " << ina[0] << std::endl;
-    std::cout << "arr a: " << ina[1] << std::endl;
-    std::cout << "arr a: " << ina[2] << std::endl;
-    std::cout << "arr a: " << ina[3] << std::endl;
-
-    ForwardFFT(ina, raw_ina_fft, size);
-    ForwardFFT(inb, raw_inb_fft, size);
-
-    thrust::transform(d_ina.begin(), d_ina.end(), d_inb.begin(), d_out.begin(), ComplexMultiply(size));
-
-    std::cout << "arr a fft: " << d_ina[0].operator Complex().x << std::endl;
-    std::cout << "arr a fft: " << d_ina[1].operator Complex().x << std::endl;
-    std::cout << "arr a fft: " << d_ina[2].operator Complex().x << std::endl;
-    std::cout << "arr a fft: " << d_ina[3].operator Complex().x << std::endl;
-
-    std::cout << "arr b fft: " << d_inb[0].operator Complex().x << std::endl;
-    std::cout << "arr b fft: " << d_inb[1].operator Complex().x << std::endl;
-    std::cout << "arr b fft: " << d_inb[2].operator Complex().x << std::endl;
-    std::cout << "arr b fft: " << d_inb[3].operator Complex().x << std::endl;
-
-    std::cout << "arr c fft: " << d_out[0].operator Complex().x << std::endl;
-    std::cout << "arr c fft: " << d_out[1].operator Complex().x << std::endl;
-    std::cout << "arr c fft: " << d_out[2].operator Complex().x << std::endl;
-    std::cout << "arr c fft: " << d_out[3].operator Complex().x << std::endl;
-
-    // thrust::copy(d_out.begin(), d_out.end(), std::ostream_iterator<float2>(std::cout, " "));
-    // std::cout << std::endl;
-
-    InverseFFT(raw_out_fft, out, size);
+    cufftHandle plan;
+    cufftPlan2d(&plan, dimy, dimx, CUFFT_R2C);
+    cufftExecR2C(plan, in, out);
+    cufftDestroy(plan);
 }
 
-void cuFFTDemo()
+void InverseFFT2D(Complex *in, float *out, const int dimx, const int dimy)
 {
-    const int size = 4;
-    // const int kernel_size = 11;
+    cufftHandle plan;
+    cufftPlan2d(&plan, dimy, dimx, CUFFT_C2R);
+    cufftExecC2R(plan, in, out);
+    cufftDestroy(plan);
+}
+
+void Conv2DFFT(float *ina, float *inb, float *out, const int dimx, const int dimy)
+{
+    const int size = dimx * dimy;
+    Complex *c_ina, *c_inb, *c_out;
+    cudaMalloc((void**)&c_ina, sizeof(Complex) * size);
+    cudaMalloc((void**)&c_inb, sizeof(Complex) * size);
+    cudaMalloc((void**)&c_out, sizeof(Complex) * size);
+
+    ForwardFFT2D(ina, c_ina, dimx, dimy);
+    ForwardFFT2D(inb, c_inb, dimx, dimy);
+    cudaDeviceSynchronize();
+
+
+    Complex *h_ina, *h_inb, *h_out;
+    cudaMallocHost((void**)&h_ina, sizeof(Complex) * size);
+    cudaMallocHost((void**)&h_inb, sizeof(Complex) * size);
+    cudaMallocHost((void**)&h_out, sizeof(Complex) * size);
+
+    cudaMemcpy(h_ina, c_ina, sizeof(Complex) * size, cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_inb, c_inb, sizeof(Complex) * size, cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_out, c_out, sizeof(Complex) * size, cudaMemcpyDeviceToHost);
+    
+    for (int i = 0; i < size; ++i)
+    {
+        std::cout << "index: " << i << " (" << h_ina[i].x << ", " << h_ina[i].y << ")" << std::endl;
+    }
+
+    dim3 Block(32, 16);
+    dim3 Grid((dimx + Block.x - 1) / Block.x, (dimy + Block.y - 1) / Block.y);
+    ComplexMulti2D<<<Grid, Block>>>(c_ina, c_inb, c_out, dimx, dimy);
+    cudaDeviceSynchronize();
+
+    InverseFFT2D(c_out, out, dimx, dimy);
+    cudaDeviceSynchronize();
+
+    cudaFree(c_ina);
+    c_ina = nullptr;
+    cudaFree(c_inb);
+    c_inb = nullptr;
+    cudaFree(c_out);
+    c_out = nullptr;
+    
+    cudaFreeHost(h_ina);
+    h_ina = nullptr;
+    cudaFreeHost(h_inb);
+    h_inb = nullptr;
+    cudaFreeHost(h_out);
+    h_out = nullptr;
+}
+
+void Conv1DFFT(float *ina, float *inb, float *out, const int size)
+{
+    Complex *c_ina, *c_inb, *c_out;
+    cudaMalloc((void**)&c_ina, sizeof(Complex) * size);
+    cudaMalloc((void**)&c_inb, sizeof(Complex) * size);
+    cudaMalloc((void**)&c_out, sizeof(Complex) * size);
+
+    ForwardFFT1D(ina, c_ina, size);
+    ForwardFFT1D(inb, c_inb, size);
+    cudaDeviceSynchronize();
+
+    dim3 Block(128);
+    dim3 Grid((size + Block.x - 1) / Block.x);
+    ComplexMulti<<<Grid, Block>>>(c_ina, c_inb, c_out, size);
+    cudaDeviceSynchronize();
+
+    InverseFFT1D(c_out, out, size);
+    cudaDeviceSynchronize();
+
+    cudaFree(c_ina);
+    c_ina = nullptr;
+    cudaFree(c_inb);
+    c_inb = nullptr;
+    cudaFree(c_out);
+    c_out = nullptr;
+}
+
+void cuFFTDemo2D()
+{
+    const int dimx = 4;
+    const int dimy = 2;
+    const int size = dimx * dimy;
 
     float *h_signal, *h_kernel, *h_result;
     cudaMallocHost((void**)&h_signal, sizeof(float) * size);
@@ -178,10 +205,9 @@ void cuFFTDemo()
     for (int i = 0; i < size; ++i)
     {
         h_signal[i] = 1 + i;
-        h_kernel[i] = 5 + i;
+        h_kernel[i] = 1 + i;
     }
-    // InitArray<float>(size, h_signal);
-    // InitArray<float>(size, h_kernel);
+
     memset(h_result, 0, sizeof(float) * size);
     std::cout << "signal initialize: " << PrintArray(h_signal, size) << std::endl;
     std::cout << "kernel initialize: " << PrintArray(h_kernel, size) << std::endl;
@@ -197,7 +223,59 @@ void cuFFTDemo()
     cudaMemset(d_result, 0, sizeof(float) * size);
 
     // cufft
-    ConvFFT(d_signal, d_kernel, d_result, size);
+    Conv2DFFT(d_signal, d_kernel, d_result, dimx, dimy);
+    cudaMemcpy(h_result, d_result, sizeof(float) * size, cudaMemcpyDeviceToHost);
+
+    std::cout << "conv result: " << PrintArray(h_result, dimx) << std::endl;
+    std::cout << "conv result: " << PrintArray(h_result + dimx, dimx) << std::endl;
+
+    // free memory
+    cudaFree(d_signal);
+    d_signal = nullptr;
+    cudaFree(d_kernel);
+    d_kernel = nullptr;
+    cudaFree(d_result);
+    d_result = nullptr;
+    cudaFreeHost(h_signal);
+    h_signal = nullptr;
+    cudaFreeHost(h_kernel);
+    h_kernel = nullptr;
+    cudaFreeHost(h_result);
+    h_result = nullptr;
+}
+
+void cuFFTDemo1D()
+{
+    const int size = 4;
+    // const int kernel_size = 11;
+
+    float *h_signal, *h_kernel, *h_result;
+    cudaMallocHost((void**)&h_signal, sizeof(float) * size);
+    cudaMallocHost((void**)&h_kernel, sizeof(float) * size);
+    cudaMallocHost((void**)&h_result, sizeof(float) * size);
+    
+    for (int i = 0; i < size; ++i)
+    {
+        h_signal[i] = 1 + i;
+        h_kernel[i] = 5 + i;
+    }
+
+    memset(h_result, 0, sizeof(float) * size);
+    std::cout << "signal initialize: " << PrintArray(h_signal, size) << std::endl;
+    std::cout << "kernel initialize: " << PrintArray(h_kernel, size) << std::endl;
+
+    // device memory
+    float *d_signal, *d_kernel, *d_result;
+    cudaMalloc((void**)&d_signal, sizeof(float) * size);
+    cudaMalloc((void**)&d_kernel, sizeof(float) * size);
+    cudaMalloc((void**)&d_result, sizeof(float) * size);
+    
+    cudaMemcpy(d_signal, h_signal, sizeof(float) * size, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_kernel, h_kernel, sizeof(float) * size, cudaMemcpyHostToDevice);
+    cudaMemset(d_result, 0, sizeof(float) * size);
+
+    // cufft
+    Conv1DFFT(d_signal, d_kernel, d_result, size);
     cudaMemcpy(h_result, d_result, sizeof(float) * size, cudaMemcpyDeviceToHost);
 
     std::cout << "conv result: " << PrintArray(h_result, size) << std::endl;
@@ -219,7 +297,9 @@ void cuFFTDemo()
 
 int main(int argc, char **argv)
 {
-    cuFFTDemo();
+    // cuFFTDemo1D();
+
+    cuFFTDemo2D();
 
     return 0;
 }
