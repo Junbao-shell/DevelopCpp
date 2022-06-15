@@ -18,6 +18,8 @@
 // External library header
 #include <thrust/host_vector.h>
 #include <thrust/device_vector.h>
+#include <thrust/random.h>
+#include <thrust/sort.h>
 #include <thrust/copy.h>
 // #include <thrust/replace.h>
 // Current module header
@@ -36,8 +38,57 @@ static inline std::string PrintArray(T *arr, const int size)
     return stream.str();
 }
 
+void UT_Vector()
+{
+    const int size = 4;
+    thrust::device_vector<float> d_vec(size);
+
+    for (int i = 0; i < size; ++i)
+    {
+        d_vec[i] = i + 1;
+    }
+
+    std::cout << "init the device vector" << std::endl;
+    thrust::copy(d_vec.begin(), d_vec.end(), std::ostream_iterator<float>(std::cout, " "));
+    std::cout << std::endl;
+
+    std::cout << "push new element the device vector" << std::endl;
+    for (int i = 0; i < size; ++i)
+    {
+        d_vec.push_back(i + 11);
+    }
+    thrust::copy(d_vec.begin(), d_vec.end(), std::ostream_iterator<float>(std::cout, " "));
+    std::cout << std::endl;
+}
+
+void UT_Random()
+{
+    const int size = 10;
+    thrust::device_vector<int> d_vec(size);
+    thrust::default_random_engine gen;
+    thrust::generate(d_vec.begin(), d_vec.end(), gen);
+
+    std::cout << "random number: " << std::endl;
+    thrust::copy(d_vec.begin(), d_vec.end(), std::ostream_iterator<int>(std::cout, " "));
+    std::cout << std::endl;
+
+    thrust::sort(d_vec.begin(), d_vec.end());
+    std::cout << "sort numbers: " << std::endl;
+    thrust::copy(d_vec.begin(), d_vec.end(), std::ostream_iterator<int>(std::cout, " "));
+    std::cout << std::endl;
+
+}
+
 int main(int argc, char **argv)
 {
+    std::cout << "========================================================" << std::endl;
+
+    // UT_Vector();
+
+    UT_Random();
+
+    std::cout << "========================================================" << std::endl;
+
     const int size = 4;
     thrust::host_vector<int> h_vec(size);
 
