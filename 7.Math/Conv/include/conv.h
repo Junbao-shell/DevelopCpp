@@ -18,9 +18,10 @@
 #include <iostream>
 // External library header
 // Current module header
+#include "math.h"
 // Root directory header
 
-class Conv
+class Conv : public imath
 {
 public:
     Conv();
@@ -32,6 +33,8 @@ public:
 
 protected:
 private:
+
+
 
 public:
 protected:
