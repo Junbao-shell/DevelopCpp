@@ -10,8 +10,8 @@
 /// @date 2022-06-16
 ///////////////////////////////////////////////////////////
 
-#ifndef __SOFTWARE-CONFIG_MATH_H_
-#define __SOFTWARE-CONFIG_MATH_H_
+#ifndef __SOFTWARE_CONFIG_MATH_H_
+#define __SOFTWARE_CONFIG_MATH_H_
 
 // System header
 // C/C++ standard library header
@@ -20,18 +20,14 @@
 // Current module header
 // Root directory header
 
+namespace nmath
+{
+
 class imath
 {
 public:
-    imath();
-    ~imath();
-
-    enum class CONV_TYPE
-    {
-        FULL = 0,
-        SAME,
-        VALID
-    };
+    imath() = default;
+    virtual ~imath() {}
 
     virtual void Conv2D(const float *signal, 
                         const float *kernel, 
@@ -40,7 +36,7 @@ public:
                         const int kernel_dimx, 
                         const int kernel_dimy,
                         float *result,
-                        CONV_TYPE type = CONV_TYPE::FULL) = 0;
+                        CONV_TYPE type = CONV_TYPE::FULL);
 
 protected:
 private:
@@ -52,4 +48,6 @@ protected:
 private:
 };
 
-#endif // __SOFTWARE-CONFIG_MATH_H_
+} // namespace nmath
+
+#endif // __SOFTWARE_CONFIG_MATH_H_

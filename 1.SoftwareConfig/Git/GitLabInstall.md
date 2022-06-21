@@ -112,6 +112,12 @@ systemctl enable gitlab-runsvdir.service
 
 
 
+在 git clone时出现此弹窗，则在以下界面选择输入 putty key 
+
+![git_clone_putty_key](../../.picture/1.SoftwareConfig/gitlab_tortoisegit_putty_clone_key.png)
+
+
+
 ## Linux 
 
 
